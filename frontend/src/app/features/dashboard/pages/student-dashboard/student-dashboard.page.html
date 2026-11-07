@@ -1,0 +1,216 @@
+<div class="space-y-8 animate-fade-up">
+
+  <!-- Welcome Banner -->
+  <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-primary-900 via-primary-800 to-secondary-900 p-8 text-white shadow-xl shadow-primary-950/20">
+    <div class="absolute -right-10 -bottom-10 w-72 h-72 rounded-full bg-secondary-400/10 blur-3xl"></div>
+    <div class="absolute -left-10 -top-10 w-60 h-60 rounded-full bg-ai-400/10 blur-3xl"></div>
+    
+    <div class="relative z-10 max-w-3xl">
+      <div class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold backdrop-blur-md mb-4 text-secondary-300 border border-white/10">
+        <span class="material-icons text-xs">school</span>
+        Đại học Công nghiệp Hà Nội – Trường Điện - Điện tử
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-black tracking-tight mb-3">
+        Xin chào, {{ authStore.username() || 'Sinh viên HaUI' }}! 👋
+      </h1>
+      <p class="text-slate-200 text-sm sm:text-base leading-relaxed mb-6 max-w-2xl">
+        Chào mừng bạn đến với <span class="font-bold text-secondary-300">EduShare+</span>. Khám phá tài liệu môn học, hỏi đáp với AI Assistant, hoặc đặt lịch với các Mentor xuất sắc.
+      </p>
+
+      <!-- Global Search Box -->
+      <div class="relative max-w-xl">
+        <span class="material-icons absolute left-4 top-3.5 text-slate-400">search</span>
+        <input 
+          type="text" 
+          [(ngModel)]="searchQuery"
+          placeholder="Tìm giáo trình, đề thi, slide theo môn học (Vi xử lý, Mạch điện tử...)"
+          class="w-full rounded-2xl bg-white/95 text-slate-800 pl-12 pr-28 py-3.5 text-sm font-medium shadow-lg backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-secondary-400 placeholder:text-slate-400">
+        <a 
+          [routerLink]="['/resources']" 
+          [queryParams]="{ q: searchQuery() }"
+          class="absolute right-2 top-2 rounded-xl bg-primary-600 hover:bg-primary-700 px-4 py-2 text-xs font-bold text-white transition-all shadow-md active:scale-95">
+          Tìm kiếm
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Action Cards -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+    @for (act of quickActions; track act.title) {
+      <a [routerLink]="act.link" 
+         class="group relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-5 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+        <div class="flex items-center justify-between mb-4">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br {{ act.color }} flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform">
+            <span class="material-icons-outlined text-2xl">{{ act.icon }}</span>
+          </div>
+          @if (act.badge) {
+            <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-ai-100 text-ai-700 dark:bg-ai-950/70 dark:text-ai-300">
+              {{ act.badge }}
+            </span>
+          }
+        </div>
+        <h3 class="font-bold text-slate-900 dark:text-white text-base group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+          {{ act.title }}
+        </h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          {{ act.desc }}
+        </p>
+      </a>
+    }
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/60 dark:border-slate-800">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950/50 flex items-center justify-center text-blue-600">
+        <span class="material-icons-outlined">visibility</span>
+      </div>
+      <div>
+        <div class="text-xl font-bold text-slate-900 dark:text-white">{{ studyProgress.documentsViewed }}</div>
+        <div class="text-xs text-slate-500">Tài liệu đã học</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-950/50 flex items-center justify-center text-purple-600">
+        <span class="material-icons-outlined">psychology</span>
+      </div>
+      <div>
+        <div class="text-xl font-bold text-slate-900 dark:text-white">{{ studyProgress.questionsAskedAi }}</div>
+        <div class="text-xs text-slate-500">Câu hỏi AI</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-cyan-100 dark:bg-cyan-950/50 flex items-center justify-center text-cyan-600">
+        <span class="material-icons-outlined">school</span>
+      </div>
+      <div>
+        <div class="text-xl font-bold text-slate-900 dark:text-white">{{ studyProgress.sessionsCompleted }}</div>
+        <div class="text-xs text-slate-500">Buổi học Mentor</div>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/50 flex items-center justify-center text-amber-600">
+        <span class="material-icons-outlined">monetization_on</span>
+      </div>
+      <div>
+        <div class="text-xl font-bold text-slate-900 dark:text-white">{{ studyProgress.coinsEarned }}</div>
+        <div class="text-xs text-slate-500">EduCoins tích lũy</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Featured Resources Section -->
+  <div>
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Học liệu nổi bật & đề thi mới nhất</h2>
+        <p class="text-xs text-slate-500">Tài liệu được kiểm duyệt và có lượt tải cao nhất tuần qua</p>
+      </div>
+      <a routerLink="/resources" class="text-xs font-bold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1">
+        Xem tất cả <span class="material-icons text-sm">arrow_forward</span>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      @for (res of featuredResources; track res.id) {
+        <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full {{ res.badgeColor }}">
+                {{ res.badge }}
+              </span>
+              <span class="text-xs font-semibold text-slate-500 flex items-center gap-1">
+                <span class="material-icons text-amber-400 text-sm">star</span>
+                {{ res.rating }}
+              </span>
+            </div>
+            <h3 class="font-bold text-slate-900 dark:text-white text-sm line-clamp-2 mb-2 hover:text-primary-600 transition-colors cursor-pointer">
+              {{ res.title }}
+            </h3>
+            <div class="space-y-1 text-xs text-slate-500 dark:text-slate-400">
+              <div class="flex items-center gap-1.5">
+                <span class="material-icons text-xs text-slate-400">menu_book</span>
+                <span>Môn: <strong>{{ res.course }}</strong></span>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <span class="material-icons text-xs text-slate-400">person</span>
+                <span>GV: {{ res.lecturer }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+            <span class="text-slate-400 flex items-center gap-1">
+              <span class="material-icons text-xs">download</span> {{ res.downloads }} lượt tải
+            </span>
+            <div class="flex gap-2">
+              <button routerLink="/ai-assistant" class="px-2.5 py-1.5 rounded-lg bg-ai-50 text-ai-700 dark:bg-ai-950/60 dark:text-ai-300 font-bold hover:bg-ai-100 transition-colors flex items-center gap-1">
+                <span class="material-icons text-xs">psychology</span> Hỏi AI
+              </button>
+              <button class="px-3 py-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white font-bold transition-colors">
+                Xem
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Top Mentors Section -->
+  <div>
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Mentor xuất sắc tuần này</h2>
+        <p class="text-xs text-slate-500">Sinh viên giỏi HaUI sẵn sàng hướng dẫn 1:1 theo từng môn chuyên ngành</p>
+      </div>
+      <a routerLink="/mentors" class="text-xs font-bold text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1">
+        Xem tất cả <span class="material-icons text-sm">arrow_forward</span>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      @for (m of topMentors; track m.id) {
+        <div class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-3 mb-3">
+              <img [src]="m.avatar" [alt]="m.name" class="w-12 h-12 rounded-xl object-cover ring-2 ring-primary-500/20">
+              <div>
+                <h3 class="font-bold text-slate-900 dark:text-white text-sm">{{ m.name }}</h3>
+                <p class="text-xs text-slate-500">{{ m.major }}</p>
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 px-1.5 py-0.5 rounded">
+                    GPA {{ m.gpa }}
+                  </span>
+                  <span class="text-xs text-slate-400 flex items-center gap-0.5">
+                    <span class="material-icons text-amber-400 text-xs">star</span> {{ m.rating }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Môn phụ trách:</div>
+              <div class="flex flex-wrap gap-1.5">
+                @for (sub of m.subjects; track sub) {
+                  <span class="text-xs px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium">
+                    {{ sub }}
+                  </span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+            <span class="text-xs text-slate-400">{{ m.sessions }} buổi đã dạy</span>
+            <a [routerLink]="['/mentors', m.id]" class="px-3 py-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold transition-all shadow-sm">
+              Đặt lịch học
+            </a>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+</div>

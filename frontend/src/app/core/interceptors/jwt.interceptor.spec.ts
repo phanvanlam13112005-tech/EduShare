@@ -1,0 +1,207 @@
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
+import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { jwtInterceptor } from './jwt.interceptor';
+import { AuthService } from '../services/auth.service';
+import { Router } from '@angular/router';
+import { of, throwError, delay } from 'rxjs';
+import { AuthResponse } from '../../shared/models';
+
+describe('jwtInterceptor', () => {
+  let httpMock: HttpTestingController;
+  let httpClient: HttpClient;
+  let authServiceSpy: jasmine.SpyObj<AuthService>;
+  let routerSpy: jasmine.SpyObj<Router>;
+
+  beforeEach(() => {
+    authServiceSpy = jasmine.createSpyObj('AuthService', ['refreshToken']);
+    routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(withInterceptors([jwtInterceptor])),
+        provideHttpClientTesting(),
+        { provide: AuthService, useValue: authServiceSpy },
+        { provide: Router, useValue: routerSpy }
+      ]
+    });
+
+    httpMock = TestBed.inject(HttpTestingController);
+    httpClient = TestBed.inject(HttpClient);
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+    localStorage.clear();
+  });
+
+  it('should add an Authorization header when token is present', () => {
+    const token = 'test-token';
+    localStorage.setItem('token', token);
+
+    httpClient.get('/api/test').subscribe();
+
+    const req = httpMock.expectOne('/api/test');
+    expect(req.request.headers.has('Authorization')).toBeTrue();
+    expect(req.request.headers.get('Authorization')).toBe(`Bearer ${token}`);
+    req.flush({});
+  });
+
+  it('should NOT add an Authorization header when token is absent', () => {
+    httpClient.get('/api/test').subscribe();
+
+    const req = httpMock.expectOne('/api/test');
+    expect(req.request.headers.has('Authorization')).toBeFalse();
+    req.flush({});
+  });
+
+  it('should handle 401 error and refresh token', () => {
+    const oldToken = 'old-token';
+    const newToken = 'new-token';
+    localStorage.setItem('token', oldToken);
+    authServiceSpy.refreshToken.and.returnValue(of({ token: newToken } as AuthResponse));
+
+    httpClient.get('/api/test').subscribe();
+
+    // First attempt
+    const req1 = httpMock.expectOne('/api/test');
+    req1.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+
+    // Refresh call
+    expect(authServiceSpy.refreshToken).toHaveBeenCalled();
+
+    // Second attempt with new token
+    const req2 = httpMock.expectOne('/api/test');
+    expect(req2.request.headers.get('Authorization')).toBe(`Bearer ${newToken}`);
+    req2.flush({ success: true });
+    
+    expect(localStorage.getItem('token')).toBe(newToken);
+  });
+
+  it('should navigate to login if refresh fails', () => {
+    localStorage.setItem('token', 'bad-token');
+    authServiceSpy.refreshToken.and.returnValue(throwError(() => new Error('Refresh failed')));
+
+    httpClient.get('/api/test').subscribe({
+        error: (err) => expect(err).toBeTruthy()
+    });
+
+    const req1 = httpMock.expectOne('/api/test');
+    req1.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/auth/login']);
+    expect(localStorage.getItem('token')).toBeNull();
+  });
+
+  it('should NOT refresh token if error occurs on an auth endpoint', () => {
+    httpClient.get('/api/auth/login').subscribe({
+        error: (err) => expect(err.status).toBe(401)
+    });
+
+    const req = httpMock.expectOne('/api/auth/login');
+    req.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+
+    expect(authServiceSpy.refreshToken).not.toHaveBeenCalled();
+  });
+
+  it('should throw error for 403 response', () => {
+    httpClient.get('/api/forbidden').subscribe({
+        error: (err) => expect(err.status).toBe(403)
+    });
+
+    const req = httpMock.expectOne('/api/forbidden');
+    req.flush('Forbidden', { status: 403, statusText: 'Forbidden' });
+  });
+
+  it('should queue requests when a refresh is already in progress', () => {
+    const newToken = 'new-token';
+    localStorage.setItem('token', 'old-token');
+    authServiceSpy.refreshToken.and.returnValue(of({ token: newToken } as AuthResponse));
+
+    // Single request that triggers a refresh
+    httpClient.get('/api/test').subscribe();
+    
+    const req1 = httpMock.expectOne('/api/test');
+    req1.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+
+    // Retry with new token
+    const retry = httpMock.expectOne('/api/test');
+    expect(retry.request.headers.get('Authorization')).toBe(`Bearer ${newToken}`);
+    retry.flush({});
+  });
+
+  it('should normalize URLs by prepending apiUrl if relative', () => {
+    httpClient.get('test-path').subscribe();
+    const req = httpMock.expectOne('/api/test-path');
+    req.flush({});
+  });
+
+  it('should NOT normalize URLs if already absolute', () => {
+    httpClient.get('http://external.com/api/test').subscribe();
+    const req = httpMock.expectOne('http://external.com/api/test');
+    req.flush({});
+  });
+
+  it('should handle concurrent 401 errors and queue requests', fakeAsync(() => {
+    const newToken = 'new-token';
+    localStorage.setItem('token', 'old-token');
+    
+    // Configure refresh to take some time
+    authServiceSpy.refreshToken.and.returnValue(of({ token: newToken } as AuthResponse).pipe(delay(100)));
+
+    let resp1: unknown, resp2: unknown;
+    httpClient.get('/api/resource1').subscribe(r => resp1 = r);
+    httpClient.get('/api/resource2').subscribe(r => resp2 = r);
+
+    // Initial requests
+    const req1 = httpMock.expectOne('/api/resource1');
+    const req2 = httpMock.expectOne('/api/resource2');
+
+    // Both fail with 401
+    req1.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+    req2.flush('Unauthorized', { status: 401, statusText: 'Unauthorized' });
+
+    tick(100); // Complete the refresh
+
+    expect(authServiceSpy.refreshToken).toHaveBeenCalledTimes(1);
+
+    // Both should be retried with the new token
+    const retry1 = httpMock.expectOne('/api/resource1');
+    const retry2 = httpMock.expectOne('/api/resource2');
+
+    expect(retry1.request.headers.get('Authorization')).toBe(`Bearer ${newToken}`);
+    expect(retry2.request.headers.get('Authorization')).toBe(`Bearer ${newToken}`);
+
+    retry1.flush({ id: 1 });
+    retry2.flush({ id: 2 });
+
+    tick();
+    expect(resp1).toEqual({ id: 1 });
+    expect(resp2).toEqual({ id: 2 });
+  }));
+
+  it('should handle 403 Forbidden correctly', () => {
+    httpClient.get('/api/secure').subscribe({
+      error: (err) => expect(err.status).toBe(403)
+    });
+
+    const req = httpMock.expectOne('/api/secure');
+    req.flush('Forbidden', { status: 403, statusText: 'Forbidden' });
+  });
+
+  it('should not prepend /api if URL already starts with it', () => {
+    httpClient.get('/api/already-prefixed').subscribe();
+    const req = httpMock.expectOne('/api/already-prefixed');
+    req.flush({});
+  });
+
+  it('should handle general errors (non-401/403) by passing them through', () => {
+    httpClient.get('/api/error').subscribe({
+      error: (err) => expect(err.status).toBe(500)
+    });
+
+    const req = httpMock.expectOne('/api/error');
+    req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
+  });
+});

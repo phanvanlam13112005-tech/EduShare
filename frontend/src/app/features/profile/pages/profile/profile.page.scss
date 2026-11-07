@@ -1,0 +1,72 @@
+:host { 
+  display: block; 
+  min-height: 100vh; 
+  font-family: 'Inter', sans-serif; 
+  @apply bg-slate-50 dark:bg-slate-950 transition-colors duration-500;
+}
+
+/* Base Animations (Synced with Home) */
+@keyframes drop-in {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-drop-in {
+  animation: drop-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease-out forwards;
+}
+
+/* Theme-Aware Glassmorphism */
+.glass-effect {
+  @apply backdrop-blur-md bg-white/70 dark:bg-slate-950/70 border border-white dark:border-slate-800 transition-colors;
+}
+
+.glass-card {
+  @apply bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white dark:border-slate-800 rounded-[32px] shadow-2xl shadow-slate-200/50 dark:shadow-none transition-all;
+}
+
+/* Hover Lift Effect */
+.hover-lift {
+  @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl dark:hover:shadow-indigo-500/10;
+}
+
+/* Premium Theme-Aware Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 dark:bg-slate-800 rounded-full hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors;
+}
+
+/* Custom Utilities for Gradient Backgrounds */
+.bg-gradient-indigo {
+  @apply bg-gradient-to-r from-indigo-600 to-violet-600 dark:from-indigo-400 dark:to-violet-400;
+}
+
+/* Component Overrides */
+input::placeholder, textarea::placeholder {
+  @apply text-slate-300 dark:text-slate-600 font-medium transition-colors;
+}
+
+.white-spinner ::ng-deep circle {
+  stroke: white !important;
+}
+
+/* Engagement Feed Transitions */
+.feed-item {
+  @apply transition-all duration-300;
+}
+.feed-item:hover {
+  @apply border-indigo-200 dark:border-indigo-500/30 shadow-xl shadow-indigo-500/5 -translate-y-0.5;
+}

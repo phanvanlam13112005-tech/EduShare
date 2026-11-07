@@ -1,0 +1,70 @@
+<div class="page">
+  <div class="left-panel">
+    <div class="brand-content">
+      <div class="brand-logo">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-600 to-secondary-500 flex items-center justify-center shadow-lg text-white font-black text-xl">
+          E+
+        </div>
+      </div>
+      <h1>EduShare+</h1>
+      <p>Nền tảng học tập 4.0 Trường Điện - Điện tử HaUI</p>
+      <div class="steps-preview">
+        <div class="step-item active">
+          <div class="step-circle">1</div>
+          <span>Enter Email</span>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">2</div>
+          <span>Verify OTP</span>
+        </div>
+        <div class="step-item">
+          <div class="step-circle">3</div>
+          <span>Set Password</span>
+        </div>
+      </div>
+    </div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+  </div>
+
+  <div class="right-panel">
+    <div class="form-wrapper">
+      <div class="mobile-logo flex items-center gap-2">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-primary-600 to-secondary-500 flex items-center justify-center text-white font-black text-xs shadow-sm">
+          E+
+        </div>
+        <span class="font-extrabold text-slate-900">Edu<span class="text-primary-600">Share</span><span class="text-secondary-500">+</span></span>
+      </div>
+
+      <div class="form-header">
+        <h2>Tham gia EduShare+</h2>
+        <p>Nhập email để nhận mã xác thực kích hoạt tài khoản</p>
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="form">
+        <div class="input-group">
+          <label for="regEmail" class="input-label">Email address</label>
+          <div class="input-wrapper" [class.focused]="emailFocused()" [class.error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+            <span class="material-icons input-icon">email</span>
+            <input id="regEmail" type="email" formControlName="email" placeholder="you@example.com"
+              (focus)="emailFocused.set(true)" (blur)="emailFocused.set(false)" />
+          </div>
+        </div>
+
+        @if (authStore.error()) {
+          <div class="error-banner">
+            <span class="material-icons">error_outline</span>
+            {{ authStore.error() }}
+          </div>
+        }
+
+        <button type="submit" class="submit-btn" [disabled]="registerForm.invalid || authStore.loading()">
+          @if (authStore.loading()) { <mat-spinner diameter="22" /> }
+          @else { <span>Send OTP</span><span class="material-icons">arrow_forward</span> }
+        </button>
+      </form>
+
+      <p class="login-link">Already have an account? <a routerLink="/auth/login">Sign in</a></p>
+    </div>
+  </div>
+</div>

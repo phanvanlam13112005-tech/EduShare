@@ -1,0 +1,160 @@
+<div class="page">
+  <!-- Left Panel: Branding -->
+  <div class="left-panel">
+    <div class="brand-content">
+      <div class="brand-logo">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary-600 to-secondary-500 flex items-center justify-center shadow-lg text-white font-black text-xl">
+          E+
+        </div>
+      </div>
+      <h1 class="brand-name">EduShare+</h1>
+      <p class="brand-tagline">Share Knowledge – Learn Together – Grow Together</p>
+
+      <div class="features">
+        @for (f of features; track f.icon) {
+          <div class="feature-item">
+            <div class="feature-icon">
+              <span class="material-icons">{{ f.icon }}</span>
+            </div>
+            <div>
+              <strong>{{ f.title }}</strong>
+              <p>{{ f.desc }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Decorative blobs -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <!-- Right Panel: Form -->
+  <div class="right-panel">
+    <div class="form-wrapper">
+
+      <!-- Mobile logo -->
+      <div class="mobile-logo flex items-center gap-2">
+        <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-primary-600 to-secondary-500 flex items-center justify-center text-white font-black text-xs shadow-sm">
+          E+
+        </div>
+        <span class="font-extrabold text-slate-900">Edu<span class="text-primary-600">Share</span><span class="text-secondary-500">+</span></span>
+      </div>
+
+      <div class="form-header">
+        <h2>Đăng nhập EduShare+</h2>
+        <p>Nền tảng học tập 4.0 Trường Điện - Điện tử HaUI</p>
+      </div>
+
+      <!-- Quick 1-Click Demo Login -->
+      <div class="demo-card mb-6 p-4 rounded-2xl bg-gradient-to-r from-primary-50 to-secondary-50 dark:from-slate-800 dark:to-slate-850 border border-primary-200 dark:border-slate-700 shadow-sm">
+        <div class="flex items-center gap-1.5 text-xs font-bold text-primary-800 dark:text-primary-300 uppercase tracking-wider mb-2.5">
+          <span class="material-icons text-sm text-amber-500">bolt</span>
+          <span>Đăng nhập nhanh 1-chạm (Không cần tài khoản):</span>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <button type="button" (click)="loginDemo('ROLE_LEARNER')" 
+                  class="p-2.5 rounded-xl bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-primary-500 hover:bg-primary-50/50 dark:hover:bg-primary-950/40 text-center shadow-sm active:scale-95 transition-all group">
+            <span class="material-icons text-primary-600 block text-lg mb-1 group-hover:scale-110 transition-transform">school</span>
+            <span class="text-xs font-bold block">Sinh viên</span>
+            <span class="text-[10px] text-slate-400 block truncate">HaUI K16</span>
+          </button>
+          <button type="button" (click)="loginDemo('ROLE_MENTOR')" 
+                  class="p-2.5 rounded-xl bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-cyan-500 hover:bg-cyan-50/50 dark:hover:bg-cyan-950/40 text-center shadow-sm active:scale-95 transition-all group">
+            <span class="material-icons text-cyan-600 block text-lg mb-1 group-hover:scale-110 transition-transform">co_present</span>
+            <span class="text-xs font-bold block">Mentor</span>
+            <span class="text-[10px] text-slate-400 block truncate">GPA 3.8</span>
+          </button>
+          <button type="button" (click)="loginDemo('ROLE_ADMIN')" 
+                  class="p-2.5 rounded-xl bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 hover:border-purple-500 hover:bg-purple-50/50 dark:hover:bg-purple-950/40 text-center shadow-sm active:scale-95 transition-all group">
+            <span class="material-icons text-purple-600 block text-lg mb-1 group-hover:scale-110 transition-transform">admin_panel_settings</span>
+            <span class="text-xs font-bold block">Admin</span>
+            <span class="text-[10px] text-slate-400 block truncate">Quản trị</span>
+          </button>
+        </div>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="auth-form">
+
+        <!-- Email -->
+        <div class="input-group">
+          <label for="loginEmail" class="input-label">Email address</label>
+          <div class="input-wrapper" [class.focused]="emailFocused()" [class.error]="form.get('email')?.invalid && form.get('email')?.touched">
+            <span class="material-icons input-icon">email</span>
+            <input
+              id="loginEmail"
+              type="email"
+              formControlName="email"
+              placeholder="you@example.com"
+              autocomplete="email"
+              (focus)="emailFocused.set(true)"
+              (blur)="emailFocused.set(false)"
+            />
+          </div>
+          @if (form.get('email')?.invalid && form.get('email')?.touched) {
+            <span class="field-error">Enter a valid email address</span>
+          }
+        </div>
+
+        <!-- Password -->
+        <div class="input-group">
+          <div class="label-row">
+            <label for="loginPwd" class="input-label">Password</label>
+            <a routerLink="/auth/forgot-password" class="forgot-link">Forgot password?</a>
+          </div>
+          <div class="input-wrapper" [class.focused]="pwdFocused()" [class.error]="form.get('password')?.invalid && form.get('password')?.touched">
+            <span class="material-icons input-icon">lock</span>
+            <input
+              id="loginPwd"
+              [type]="showPwd() ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              (focus)="pwdFocused.set(true)"
+              (blur)="pwdFocused.set(false)"
+            />
+            <button type="button" class="toggle-pwd" (click)="showPwd.set(!showPwd())">
+              <span class="material-icons">{{ showPwd() ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+          @if (form.get('password')?.invalid && form.get('password')?.touched) {
+            <span class="field-error">Password is required</span>
+          }
+        </div>
+
+        <!-- Error Banner -->
+        @if (authStore.error()) {
+          <div class="error-banner">
+            <span class="material-icons">error_outline</span>
+            {{ authStore.error() }}
+          </div>
+        }
+
+        <!-- Submit -->
+        <button type="submit" class="submit-btn" [disabled]="form.invalid || authStore.loading()">
+          @if (authStore.loading()) {
+            <mat-spinner diameter="22" />
+          } @else {
+            <span>Sign In</span>
+            <span class="material-icons">arrow_forward</span>
+          }
+        </button>
+
+        <!-- Divider -->
+        <div class="divider"><span>or continue with</span></div>
+
+        <!-- Google -->
+        <app-google-login-button />
+
+        <!-- Register link -->
+        <p class="register-link">
+          Don't have an account?
+          <a routerLink="/auth/register">Create one free</a>
+        </p>
+
+      </form>
+    </div>
+  </div>
+</div>

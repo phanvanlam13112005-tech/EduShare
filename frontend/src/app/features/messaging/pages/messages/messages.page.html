@@ -1,0 +1,112 @@
+<div class="messaging-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="header-top">
+        <h1>Messages</h1>
+        <button class="btn-new" (click)="onNewChat()">
+          <span class="material-icons">add</span> New
+        </button>
+      </div>
+      <div class="search-box">
+        <span class="material-icons search-icon">search</span>
+        <input 
+          type="text" 
+          placeholder="Search items..." 
+          [value]="searchQuery()"
+          (input)="onSearch($event)"
+        >
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tab-switcher">
+      <button 
+        class="tab-link" 
+        [class.active]="activeTab() === 'direct'"
+        (click)="setTab('direct')">
+        Direct
+      </button>
+      <button 
+        class="tab-link" 
+        [class.active]="activeTab() === 'groups'"
+        (click)="setTab('groups')">
+        Groups
+      </button>
+    </div>
+
+    <!-- List -->
+    <div class="scroll-area">
+      @if (activeTab() === 'direct') {
+        <div class="chat-list">
+          @if (loadingDirect()) {
+            <div class="loading-state">Loading users...</div>
+          } @else if (filteredDirectList().length === 0) {
+            <div class="empty-list">No direct messages found.</div>
+          } @else {
+            @for (entry of filteredDirectList(); track entry.userId) {
+              <div 
+                class="chat-item" 
+                [class.active]="isDirectSelected(entry)"
+                (click)="openDirectChat(entry.userId)"
+                (keydown.enter)="openDirectChat(entry.userId)"
+                role="button"
+                tabindex="0">
+                <div class="avatar-card">
+                  <span class="initials">{{ getInitials(entry.name) }}</span>
+                </div>
+                <div class="chat-info">
+                  <div class="chat-name">{{ entry.name }}</div>
+                  <div class="chat-preview">{{ entry.email || 'Direct message' }}</div>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      }
+
+      @if (activeTab() === 'groups') {
+        <div class="chat-list">
+          @if (loadingGroups()) {
+            <div class="loading-state">Loading groups...</div>
+          } @else if (filteredGroupList().length === 0) {
+            <div class="empty-list">No groups found.</div>
+          } @else {
+            @for (group of filteredGroupList(); track group.id) {
+              <div 
+                class="chat-item" 
+                [class.active]="isGroupSelected(group)"
+                (click)="openGroupChat(group.id)"
+                (keydown.enter)="openGroupChat(group.id)"
+                role="button"
+                tabindex="0">
+                <div class="avatar-circle group-bg">
+                  <span class="material-icons">groups</span>
+                </div>
+                <div class="chat-info">
+                  <div class="chat-name">{{ group.name }}</div>
+                  <div class="chat-preview">{{ group.currentMembers }} members</div>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      }
+    </div>
+  </aside>
+
+  <!-- Main Chat Area -->
+  <main class="chat-main" [class.no-selection]="!selectedConversationId()">
+    @if (selectedConversationId()) {
+      <app-chat-container></app-chat-container>
+    } @else {
+      <div class="welcome-container">
+        <div class="welcome-icon">
+          <span class="material-icons">forum</span>
+        </div>
+        <h2>Select a conversation</h2>
+        <p>Choose a chat from the sidebar to view your messages.</p>
+      </div>
+    }
+  </main>
+</div>

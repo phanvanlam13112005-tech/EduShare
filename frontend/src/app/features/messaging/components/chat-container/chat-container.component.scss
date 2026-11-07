@@ -1,0 +1,173 @@
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: transparent;
+  color: #1e293b;
+  font-family: 'Inter', sans-serif;
+
+  @at-root :host-context(.dark) & {
+    color: #fff;
+  }
+}
+
+.chat-area {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0; // CRITICAL for nested flexbox scrolling
+  position: relative;
+  background: transparent;
+  backdrop-filter: blur(10px);
+
+  app-chat-header {
+    flex-shrink: 0;
+  }
+
+  app-message-thread {
+    flex: 1;
+    min-height: 0;
+  }
+
+  app-message-input {
+    flex-shrink: 0;
+  }
+}
+
+.empty-chat-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  background: radial-gradient(circle at center, rgba(124, 92, 255, 0.05) 0%, transparent 70%);
+
+  @at-root :host-context(.dark) & {
+    background: radial-gradient(circle at center, rgba(30, 30, 60, 0.4) 0%, transparent 70%);
+  }
+}
+
+.empty-chat-content {
+  text-align: center;
+  max-width: 400px;
+  padding: 2rem;
+  
+  .empty-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    background: rgba(111, 66, 193, 0.1);
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    color: #6f42c1;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+  
+  .empty-icon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+
+    @at-root :host-context(.dark) & {
+      color: #fff;
+    }
+  }
+  
+  p {
+    color: #64748b;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+
+    @at-root :host-context(.dark) & {
+      color: #94a3b8;
+    }
+  }
+}
+
+.new-chat-btn {
+  background: linear-gradient(135deg, #6f42c1 0%, #a78bfa 100%);
+  color: white;
+  border: none;
+  padding: 0.875rem 1.75rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3);
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(111, 66, 193, 0.4);
+    filter: brightness(1.1);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Crystal Mode specific styles */
+:host-context(.crystal-mode) {
+  .chat-container {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.95));
+
+    @at-root :host-context(.dark) & {
+      background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(15, 15, 30, 0.95));
+    }
+  }
+  
+  .chat-area {
+    background: rgba(255, 255, 255, 0.02);
+    border-left: 1px solid #f1f5f9;
+
+    @at-root :host-context(.dark) & {
+      border-left: 1px solid rgba(255, 255, 255, 0.05);
+    }
+  }
+}
+
+/* Scrollbar for the whole chat */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  
+  @at-root :host-context(.dark) & {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.1);
+
+    @at-root :host-context(.dark) & {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  }
+}

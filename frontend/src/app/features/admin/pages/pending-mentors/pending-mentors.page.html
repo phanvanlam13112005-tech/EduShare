@@ -1,0 +1,79 @@
+<div class="page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Mentor Management</h1>
+      <p>Review and approve mentor applications</p>
+    </div>
+    <div class="header-stats">
+        <div class="stat-pill">
+        <span class="material-icons">pending_actions</span>
+        {{ mentorStore.totalElements() }} pending
+      </div>
+    </div>
+  </div>
+
+  <!-- Mentor Applications Section -->
+  <div class="mentor-applications-section">
+    @if (mentorStore.loading()) {
+      <div class="loading-center"><mat-spinner diameter="48" /></div>
+    } @else {
+      <div class="grid">
+        @for (m of pagedMentors(); track m.id) {
+          <div class="app-card">
+            <!-- ... existing card content ... -->
+            <div class="card-header">
+              <div class="avatar">{{ m.specialization[0].toUpperCase() }}</div>
+              <div class="card-info">
+                <h3>{{ m.specialization }}</h3>
+                <p>User #{{ m.userId }}</p>
+              </div>
+              <div class="pending-chip">Pending</div>
+            </div>
+            <div class="card-details">
+              <div class="detail-item">
+                <span class="material-icons">workspace_premium</span>
+                {{ m.yearsOfExperience }} yrs experience
+              </div>
+              <div class="detail-item">
+                <span class="material-icons">payments</span>
+                ₹{{ m.hourlyRate }}/hr
+              </div>
+              <div class="detail-item">
+                <span class="material-icons">calendar_today</span>
+                Applied {{ m.createdAt | date:'mediumDate' }}
+              </div>
+            </div>
+            <div class="card-actions">
+              <button class="btn-approve" (click)="approve(m.id)">
+                <span class="material-icons">check_circle</span> Approve
+              </button>
+              <button class="btn-reject" (click)="reject(m.id)">
+                <span class="material-icons">cancel</span> Reject
+              </button>
+            </div>
+          </div>
+        }
+        @empty {
+          <div class="empty-state">
+            <div class="empty-icon"><span class="material-icons">how_to_reg</span></div>
+            <h3>No pending applications</h3>
+            <p>All applications have been reviewed.</p>
+          </div>
+        }
+      </div>
+
+      <!-- Pagination -->
+      @if (mentorStore.totalElements() > pageSize()) {
+        <app-pagination
+          [totalItems]="mentorStore.totalElements()"
+          [pageSize]="pageSize()"
+          [currentPage]="mentorStore.currentPage()"
+          (pageChange)="onPageChange($event)"
+        ></app-pagination>
+      }
+    }
+  </div>
+
+</div>

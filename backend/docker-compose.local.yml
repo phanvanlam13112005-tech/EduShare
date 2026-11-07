@@ -1,0 +1,105 @@
+# EduShare+ Local Infrastructure Compose
+# Khởi động: docker compose -f docker-compose.local.yml up -d
+version: "3.9"
+
+services:
+  # ─── DATABASES LAYER ────────────────────────────────────────────────────────
+  auth-db:
+    image: mysql:8.0
+    container_name: edushare-auth-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-edushare_local_2024}
+      MYSQL_DATABASE: skill_auth
+    ports:
+      - "3307:3306"
+    volumes:
+      - edushare_auth_data:/var/lib/mysql
+    networks:
+      - edushare-net
+    command: ["--default-authentication-plugin=mysql_native_password", "--skip-log-bin"]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  resource-db:
+    image: mysql:8.0
+    container_name: edushare-resource-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-edushare_local_2024}
+      MYSQL_DATABASE: edushare_resource
+    ports:
+      - "3308:3306"
+    volumes:
+      - edushare_resource_data:/var/lib/mysql
+    networks:
+      - edushare-net
+    command: ["--default-authentication-plugin=mysql_native_password", "--skip-log-bin"]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── REDIS CACHE ────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: edushare-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - edushare-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── RABBITMQ MESSAGE BROKER ────────────────────────────────────────────────
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: edushare-rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+      - "61613:61613" # STOMP
+    command: ["sh", "-c", "rabbitmq-plugins enable --offline rabbitmq_stomp; rabbitmq-server"]
+    networks:
+      - edushare-net
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── MINIO S3 OBJECT STORAGE ────────────────────────────────────────────────
+  minio:
+    image: minio/minio:latest
+    container_name: edushare-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-edushare_admin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-edushare_minio_2024}
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - edushare_minio_data:/data
+    networks:
+      - edushare-net
+
+networks:
+  edushare-net:
+    driver: bridge
+    name: edushare-network
+
+volumes:
+  edushare_auth_data:
+  edushare_resource_data:
+  edushare_minio_data:

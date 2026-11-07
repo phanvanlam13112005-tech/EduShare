@@ -1,0 +1,91 @@
+package com.skillsync.payment.audit;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
+import jakarta.servlet.http.HttpServletRequest;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.AuditorAware;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import java.util.Optional;
+
+class AuditConfigTest {
+
+    private AuditConfig auditConfig;
+
+    @BeforeEach
+    void setUp() {
+        auditConfig = new AuditConfig();
+        RequestContextHolder.resetRequestAttributes();
+    }
+
+    @AfterEach
+    void tearDown() {
+        RequestContextHolder.resetRequestAttributes();
+    }
+
+    @Test
+    void auditorProvider_shouldReturnUserId_whenHeaderPresent() {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getHeader("X-User-Id")).thenReturn("user-123");
+        ServletRequestAttributes attrs = new ServletRequestAttributes(request);
+        RequestContextHolder.setRequestAttributes(attrs);
+
+        AuditorAware<String> provider = auditConfig.auditorProvider();
+        Optional<String> auditor = provider.getCurrentAuditor();
+
+        assertThat(auditor).contains("user-123");
+    }
+
+    @Test
+    void auditorProvider_shouldReturnSystem_whenRequestAttributesNull() {
+        RequestContextHolder.setRequestAttributes(null);
+
+        AuditorAware<String> provider = auditConfig.auditorProvider();
+        Optional<String> auditor = provider.getCurrentAuditor();
+
+        assertThat(auditor).contains("system");
+    }
+
+    @Test
+    void auditorProvider_shouldReturnSystem_whenUserIdHeaderNull() {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getHeader("X-User-Id")).thenReturn(null);
+        ServletRequestAttributes attrs = new ServletRequestAttributes(request);
+        RequestContextHolder.setRequestAttributes(attrs);
+
+        AuditorAware<String> provider = auditConfig.auditorProvider();
+        Optional<String> auditor = provider.getCurrentAuditor();
+
+        assertThat(auditor).contains("system");
+    }
+
+    @Test
+    void auditorProvider_shouldReturnSystem_whenUserIdHeaderBlank() {
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        when(request.getHeader("X-User-Id")).thenReturn(" ");
+        ServletRequestAttributes attrs = new ServletRequestAttributes(request);
+        RequestContextHolder.setRequestAttributes(attrs);
+
+        AuditorAware<String> provider = auditConfig.auditorProvider();
+        Optional<String> auditor = provider.getCurrentAuditor();
+
+        assertThat(auditor).contains("system");
+    }
+
+    @Test
+    void auditorProvider_shouldReturnSystem_whenExceptionOccurs() {
+        // Mock RequestContextHolder to throw exception when getRequestAttributes is called?
+        // Actually ServletRequestAttributes cast can throw ClassCastException if we set something else
+        RequestContextHolder.setRequestAttributes(mock(org.springframework.web.context.request.RequestAttributes.class));
+
+        AuditorAware<String> provider = auditConfig.auditorProvider();
+        Optional<String> auditor = provider.getCurrentAuditor();
+
+        assertThat(auditor).contains("system");
+    }
+}

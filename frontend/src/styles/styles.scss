@@ -1,0 +1,88 @@
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* EduShare+ Brand Colors */
+  --edu-primary:     #1e3a8a;   /* Deep Blue  */
+  --edu-primary-mid: #2563eb;
+  --edu-secondary:   #06b6d4;   /* Cyan       */
+  --edu-accent:      #7c3aed;   /* Purple / AI */
+
+  /* Glass & Surface */
+  --glass-bg:     rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-shadow: 0 8px 32px 0 rgba(30, 58, 138, 0.07);
+
+  /* Brand Gradient */
+  --edu-gradient: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #06b6d4 100%);
+  --edu-gradient-ai: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 font-sans antialiased;
+  margin: 0;
+}
+
+/* Premium Glassmorphism Utility */
+.glass-effect {
+  @apply backdrop-blur-md bg-white/70 border border-white/20 shadow-lg dark:bg-slate-900/60 dark:border-white/10;
+}
+
+.glass-card {
+  @apply backdrop-blur-md bg-white/70 border border-white/20 shadow-xl rounded-2xl dark:bg-slate-900/60 dark:border-white/10;
+}
+
+/* Custom Scrollbar for Premium Feel */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 rounded-full hover:bg-slate-400 transition-colors;
+}
+
+/* Animation Utilities */
+.page-transition {
+  @apply transition-all duration-300 ease-out;
+}
+
+.hover-lift {
+  @apply transition-transform duration-200 hover:-translate-y-1;
+}
+
+/* Material Overrides - FORCE TOP POSITIONING */
+.mat-mdc-snack-bar-container {
+  border-radius: 1rem !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  background: white !important;
+  position: fixed !important;
+  top: 80px !important;
+  bottom: auto !important;
+  right: 16px !important;
+  left: auto !important;
+  z-index: 1000 !important;
+  margin: 0 !important;
+}
+
+.mat-mdc-snack-bar-label {
+  font-weight: 700 !important;
+  letter-spacing: 0.025em !important;
+}
+
+/* Force top positioning in overlay container */
+::ng-deep .cdk-overlay-pane {
+  &:has(.mat-mdc-snack-bar-container) {
+    top: 80px !important;
+    bottom: auto !important;
+    right: 16px !important;
+    left: auto !important;
+  }
+}

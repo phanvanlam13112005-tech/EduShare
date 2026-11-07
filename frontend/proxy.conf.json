@@ -1,0 +1,11 @@
+{
+  "/api": {
+    "target": "https://api.skillssync.me",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "cookiepathRewrite": {
+      "/auth": "/api/auth"
+    }
+  }
+}

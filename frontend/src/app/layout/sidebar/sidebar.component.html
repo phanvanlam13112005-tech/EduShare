@@ -1,0 +1,59 @@
+<div class="h-full flex flex-col py-6 px-4">
+  
+  <!-- Brand Logo -->
+  <div class="flex items-center gap-3 px-2 mb-8 overflow-hidden">
+    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-600 to-secondary-500 flex items-center justify-center shrink-0 shadow-md shadow-primary-200">
+      <span class="text-white font-black text-sm">E+</span>
+    </div>
+    @if (!isCollapsed) {
+      <div class="transition-all duration-300 whitespace-nowrap opacity-100 flex flex-col">
+        <span class="text-lg font-black tracking-tight text-slate-800 dark:text-white leading-tight">
+          Edu<span class="text-primary-600">Share</span><span class="text-secondary-500">+</span>
+        </span>
+        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">HaUI EdTech 4.0</span>
+      </div>
+    } @else {
+      <span class="opacity-0 w-0 overflow-hidden transition-all duration-300 whitespace-nowrap">EduShare+</span>
+    }
+  </div>
+
+  <!-- Nav Items -->
+  <nav class="flex-1 space-y-1 overflow-y-auto pr-1">
+    @for (item of visibleItems(); track item.route) {
+      <a class="group flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary-600 active:scale-[0.98]"
+         [routerLink]="item.route" [routerLinkActiveOptions]="{ exact: item.exact || false }"
+         routerLinkActive="bg-primary-50 dark:bg-primary-950/40 text-primary-600 dark:text-primary-400 ring-1 ring-primary-100/70 font-semibold"
+         (click)="navClick.emit()">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="material-icons-outlined shrink-0 group-hover:scale-110 transition-transform text-slate-400 dark:text-slate-500">{{ item.icon }}</span>
+          <span class="text-sm tracking-wide text-slate-700 dark:text-slate-300 transition-all duration-300 overflow-hidden whitespace-nowrap"
+                [class.opacity-100]="!isCollapsed"
+                [class.w-auto]="!isCollapsed"
+                [class.opacity-0]="isCollapsed"
+                [class.w-0]="isCollapsed">
+            {{ item.label }}
+          </span>
+        </div>
+        @if (item.badge && !isCollapsed) {
+          <span class="text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded-md bg-ai-100 text-ai-700 dark:bg-ai-900/60 dark:text-ai-300">
+            {{ item.badge }}
+          </span>
+        }
+      </a>
+    }
+  </nav>
+
+  <!-- Logout (in Sidebar) -->
+  <button 
+    (click)="logout()"
+    class="mt-auto group flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-400 active:scale-[0.98]">
+    <span class="material-icons-outlined shrink-0 group-hover:rotate-12 transition-transform text-slate-400 dark:text-slate-500 group-hover:text-red-500">logout</span>
+    <span class="font-medium text-sm tracking-wide text-slate-500 dark:text-slate-400 group-hover:text-red-600 transition-all duration-300 overflow-hidden whitespace-nowrap"
+          [class.opacity-100]="!isCollapsed"
+          [class.w-auto]="!isCollapsed"
+          [class.opacity-0]="isCollapsed"
+          [class.w-0]="isCollapsed">
+      Đăng xuất
+    </span>
+  </button>
+</div>

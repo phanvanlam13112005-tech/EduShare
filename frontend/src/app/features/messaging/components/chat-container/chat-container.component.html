@@ -1,0 +1,40 @@
+<div class="chat-container">
+  <!-- Main Area -->
+  <div class="chat-area">
+    @if (chatStore.currentConversationId()) {
+      <!-- Header -->
+      <app-chat-header
+        [conversation]="chatStore.currentConversation"
+        (infoClicked)="onInfoClicked()"
+        (callClicked)="onCallClicked()"
+        (moreClicked)="onMoreClicked()"
+      ></app-chat-header>
+
+      <!-- Messages -->
+      <app-message-thread
+        [currentUserId]="currentUserId()"
+        [isGroupChat]="isGroupChat()"
+        (scrolledToTop)="onScrolledToTop()"
+        (markAsRead)="onMarkAsRead($event)"
+      ></app-message-thread>
+
+      <!-- Input -->
+      <app-message-input
+        [conversationType]="getConversationType()"
+        [isLoading]="chatStore.isLoadingMessages()"
+        [typingUsers]="chatStore.currentTypingUsers()"
+        (messageSent)="onMessageSent($event)"
+        (typingStatusChanged)="onTypingStatusChanged($event)"
+      ></app-message-input>
+    } @else {
+      <!-- Empty State -->
+      <div class="empty-conversation-state">
+        <div class="empty-content">
+          <span class="material-icons info-icon">forum</span>
+          <h2>Select a conversation</h2>
+          <p>Choose a chat from the sidebar to view your messages.</p>
+        </div>
+      </div>
+    }
+  </div>
+</div>
